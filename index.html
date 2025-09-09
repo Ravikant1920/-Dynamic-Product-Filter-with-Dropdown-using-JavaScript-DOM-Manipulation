@@ -1,80 +1,362 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dynamic Product Filter with Dropdown</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-    }
-    select {
-      margin-bottom: 20px;
-      padding: 8px;
-      font-size: 16px;
-    }
-    .products {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-    .product {
-      border: 1px solid #ccc;
-      padding: 15px;
-      width: 200px;
-      text-align: center;
-      border-radius: 8px;
-      background-color: #f9f9f9;
-      transition: transform 0.2s;
-    }
-    .product:hover {
-      transform: scale(1.05);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Filter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        
+        .filter-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .filter-label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-right: 15px;
+        }
+        
+        .filter-select {
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background-color: #f8f9fa;
+            font-size: 16px;
+            color: #333;
+            cursor: pointer;
+            flex-grow: 1;
+            max-width: 300px;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        
+        .product-card {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            opacity: 1;
+            transform: translateY(0);
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .product-card.hidden {
+            display: none;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .product-image {
+            height: 200px;
+            width: 100%;
+            background-color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .product-image-placeholder {
+            font-size: 48px;
+            color: #c3cfd9;
+        }
+        
+        .product-info {
+            padding: 20px;
+        }
+        
+        .product-category {
+            color: #3498db;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .product-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .product-description {
+            color: #7f8c8d;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .product-price {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #27ae60;
+            margin-top: 10px;
+        }
+        
+        .no-products {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .no-products h3 {
+            color: #7f8c8d;
+            margin-bottom: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .filter-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .filter-label {
+                margin-bottom: 10px;
+            }
+            
+            .filter-select {
+                max-width: 100%;
+                width: 100%;
+            }
+            
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h1>Dynamic Product Filter</h1>
+    <div class="container">
+        <header>
+            <h1>Dynamic Product Filter</h1>
+            <p class="subtitle">Filter products by category using the dropdown menu</p>
+        </header>
+        
+        <div class="filter-container">
+            <span class="filter-label">Filter by Category:</span>
+            <select id="category-filter" class="filter-select">
+                <option value="all">All Products</option>
+                <option value="electronics">Electronics</option>
+                <option value="clothing">Clothing</option>
+                <option value="books">Books</option>
+                <option value="home">Home & Kitchen</option>
+            </select>
+        </div>
+        
+        <div id="products-container" class="products-grid">
+            <!-- Products will be dynamically inserted here -->
+        </div>
+    </div>
 
-  <!-- Dropdown Menu -->
-  <label for="filter">Filter by Category:</label>
-  <select id="filter">
-    <option value="all">All</option>
-    <option value="shoes">Shoes</option>
-    <option value="shirts">Shirts</option>
-    <option value="gadgets">Gadgets</option>
-  </select>
+    <script>
+        // Product data
+        const products = [
+            {
+                id: 1,
+                name: "Wireless Earbuds",
+                category: "electronics",
+                description: "High-quality wireless earbuds with noise cancellation and 24-hour battery life.",
+                price: 89.99
+            },
+            {
+                id: 2,
+                name: "Cotton T-Shirt",
+                category: "clothing",
+                description: "Comfortable 100% cotton t-shirt available in multiple colors.",
+                price: 19.99
+            },
+            {
+                id: 3,
+                name: "JavaScript Programming Book",
+                category: "books",
+                description: "Comprehensive guide to modern JavaScript programming practices.",
+                price: 34.95
+            },
+            {
+                id: 4,
+                name: "Smartphone",
+                category: "electronics",
+                description: "Latest smartphone with high-resolution camera and fast processor.",
+                price: 699.99
+            },
+            {
+                id: 5,
+                name: "Coffee Maker",
+                category: "home",
+                description: "Programmable coffee maker with thermal carafe to keep coffee hot for hours.",
+                price: 49.95
+            },
+            {
+                id: 6,
+                name: "Denim Jeans",
+                category: "clothing",
+                description: "Classic denim jeans with a modern fit and comfortable stretch material.",
+                price: 59.99
+            },
+            {
+                id: 7,
+                name: "Python Crash Course",
+                category: "books",
+                description: "Beginner-friendly introduction to Python programming language.",
+                price: 29.95
+            },
+            {
+                id: 8,
+                name: "Blender",
+                category: "home",
+                description: "Powerful blender perfect for smoothies, soups, and sauces.",
+                price: 39.99
+            },
+            {
+                id: 9,
+                name: "Smart Watch",
+                category: "electronics",
+                description: "Feature-rich smartwatch with health monitoring and notification support.",
+                price: 199.99
+            },
+            {
+                id: 10,
+                name: "Winter Jacket",
+                category: "clothing",
+                description: "Warm winter jacket with water-resistant exterior and cozy insulation.",
+                price: 129.99
+            }
+        ];
 
-  <!-- Product List -->
-  <div class="products" id="productList">
-    <div class="product" data-category="shoes">Running Shoes</div>
-    <div class="product" data-category="shoes">Casual Sneakers</div>
-    <div class="product" data-category="shirts">Formal Shirt</div>
-    <div class="product" data-category="shirts">Casual T-Shirt</div>
-    <div class="product" data-category="gadgets">Smartphone</div>
-    <div class="product" data-category="gadgets">Smartwatch</div>
-  </div>
+        // DOM elements
+        const productsContainer = document.getElementById('products-container');
+        const categoryFilter = document.getElementById('category-filter');
 
-  <script>
-    // Get dropdown and product list
-    const filter = document.getElementById("filter");
-    const products = document.querySelectorAll(".product");
-
-    // Event listener for dropdown change
-    filter.addEventListener("change", function() {
-      const selected = this.value;
-
-      products.forEach(product => {
-        if (selected === "all" || product.getAttribute("data-category") === selected) {
-          product.style.display = "block";
-        } else {
-          product.style.display = "none";
+        // Function to render products based on category
+        function renderProducts(category = 'all') {
+            // Clear the products container
+            productsContainer.innerHTML = '';
+            
+            // Filter products based on category
+            const filteredProducts = category === 'all' 
+                ? products 
+                : products.filter(product => product.category === category);
+            
+            // Show message if no products match the filter
+            if (filteredProducts.length === 0) {
+                productsContainer.innerHTML = `
+                    <div class="no-products">
+                        <h3>No products found in this category</h3>
+                        <p>Try selecting a different category from the dropdown</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Render the filtered products
+            filteredProducts.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.innerHTML = `
+                    <div class="product-image">
+                        <div class="product-image-placeholder">📦</div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">${product.category}</div>
+                        <h3 class="product-name">${product.name}</h3>
+                        <p class="product-description">${product.description}</p>
+                        <div class="product-price">$${product.price.toFixed(2)}</div>
+                    </div>
+                `;
+                productsContainer.appendChild(productCard);
+            });
         }
-      });
-    });
-  </script>
+
+        // Event listener for category filter
+        categoryFilter.addEventListener('change', (event) => {
+            renderProducts(event.target.value);
+        });
+
+        // Initial render of all products
+        renderProducts();
+    </script>
 </body>
 </html>
